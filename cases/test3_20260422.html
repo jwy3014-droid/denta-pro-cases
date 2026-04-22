@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover,user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#0e1118">
+<title>Denta-PRO | test3</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:system-ui,sans-serif;background:#0e1118;color:#c8d0da;height:100vh;height:100dvh;display:flex;flex-direction:column;overflow:hidden;position:fixed;width:100%;top:0;left:0}
+header{background:#12161f;border-bottom:1px solid #2a3040;padding:0 20px;height:50px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.logo-txt{font-size:16px;font-weight:700;color:#5bb3c9}.logo-txt span{color:#fff}
+.hdr-info{font-size:11px;color:#5a6a7a;font-family:monospace}
+.main{display:flex;flex:1;min-height:0;overflow:hidden;width:100%}
+#vwrap{flex:1;position:relative;background:#22262f;overflow:hidden;min-width:0;min-height:0}
+#vwrap canvas{display:block;width:100%!important;height:100%!important}
+#xdc{position:absolute;inset:0;pointer-events:none;z-index:8}
+.sidebar{width:270px;background:#12161f;border-left:1px solid #2a3040;display:flex;flex-direction:column;overflow-y:auto;flex-shrink:0}
+.sb-sec{border-bottom:1px solid #1e2638}
+.sb-hdr{padding:9px 14px;font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#3a8fa3;background:#0f1420}
+.case-grid{display:grid;grid-template-columns:1fr 1fr}
+.case-cell{padding:8px 14px;border-right:1px solid #1e2638;border-bottom:1px solid #1e2638}
+.case-cell:nth-child(even){border-right:none}
+.case-lbl{font-size:9px;color:#3a8fa3;text-transform:uppercase;letter-spacing:.06em;margin-bottom:2px}
+.case-val{font-size:12px;color:#c8d0da;font-weight:500;word-break:break-word}
+.layer-list{padding:8px 10px;display:flex;flex-direction:column;gap:5px}
+.layer-item{display:flex;flex-direction:column;gap:5px;padding:8px 9px;border-radius:7px;background:#1a2030;border:1px solid #2a3448}
+.layer-row1{display:flex;align-items:center;gap:7px;cursor:pointer}
+.layer-row2{display:flex;align-items:center;gap:6px;padding-left:26px}
+.l-dot{width:18px;height:18px;border-radius:5px;flex-shrink:0}
+.l-name{font-size:11px;font-family:monospace;color:#a0b0c0;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.l-eye{font-size:12px;opacity:.6}.l-eye.off{opacity:.25}
+.ctrl-bar{padding:10px 14px;display:flex;flex-direction:column;gap:8px}
+.ctrl-row{display:flex;align-items:center;gap:8px;font-size:11px;color:#6a7a8a}
+.ctrl-row input[type=range]{flex:1;accent-color:#3a8fa3}
+.ctrl-row input[type=checkbox]{accent-color:#3a8fa3;cursor:pointer}
+.ctrl-row label{cursor:pointer}
+.view-btns{display:flex;gap:4px;flex-wrap:wrap}
+.vbtn{font-size:10px;padding:3px 8px;border-radius:4px;border:1px solid #2a3448;background:#1a2030;cursor:pointer;color:#6a7a8a;font-family:monospace;transition:all .15s}
+.vbtn:hover{background:#3a8fa3;color:white;border-color:#3a8fa3}
+.draw-bar{padding:8px 12px;display:flex;flex-direction:column;gap:6px}
+.draw-row{display:flex;gap:4px;flex-wrap:wrap;align-items:center}
+.dbtn{font-size:10px;padding:3px 8px;border-radius:4px;border:1px solid #2a3448;background:#1a2030;cursor:pointer;color:#6a7a8a;transition:all .15s;white-space:nowrap}
+.dbtn:hover{border-color:#3a8fa3;color:#5bb3c9}
+.dbtn.on{background:#3a8fa3;color:white;border-color:#3a8fa3}
+.margin-info{padding:10px 14px;font-size:11px;color:#6a7a8a;line-height:1.8}
+.margin-val{color:#5bb3c9;font-weight:500}
+.comment-box{margin:0 14px 12px;background:#0e1118;border:1px solid #2a3040;border-radius:7px;padding:9px 11px;color:#8090a0;font-size:11px;line-height:1.5;white-space:pre-wrap}
+.footer{padding:10px 14px;font-size:10px;color:#3a4a5a;font-family:monospace;border-top:1px solid #1e2638;text-align:right;flex-shrink:0;margin-top:auto}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo-txt"><span>Denta</span>-PRO &nbsp;<span style="font-size:11px;font-weight:400;color:#3a8fa3">Custom Abutment 3D Viewer</span></div>
+  <div class="hdr-info">Denta-pro@daum.net</div>
+  <button onclick="_reqFS()" id="fs-btn" style="background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.7);padding:4px 10px;border-radius:5px;font-size:11px;cursor:pointer;flex-shrink:0">⛶ 全画面</button>
+</header>
+<div class="main">
+  <div id="vwrap"><canvas id="c"></canvas><canvas id="xdc"></canvas></div>
+  <div class="sidebar">
+    <div class="sb-sec">
+      <div class="sb-hdr">患者情報</div>
+      <div class="case-grid">
+        <div class="case-cell"><div class="case-lbl">患者名</div><div class="case-val">test3</div></div>
+        <div class="case-cell"><div class="case-lbl">依頼日</div><div class="case-val">2026/4/22</div></div>
+        <div class="case-cell"><div class="case-lbl">技工士</div><div class="case-val">—</div></div>
+        <div class="case-cell"><div class="case-lbl">クリニック</div><div class="case-val">—</div></div>
+      </div>
+    </div>
+    <div class="sb-sec">
+      <div class="sb-hdr">マージン情報</div>
+      <div class="margin-info">タイプ: <span class="margin-val">EQ</span><br>深さ: <span class="margin-val">-</span></div>
+    </div>
+    
+    <div class="sb-sec">
+      <div class="sb-hdr">STL レイヤー</div>
+      <div class="layer-list" id="llout"></div>
+    </div>
+    <div class="sb-sec">
+      <div class="sb-hdr">コントロール</div>
+      <div class="ctrl-bar">
+        <div class="ctrl-row"><input type="checkbox" id="ar" checked><label for="ar">自動回転</label></div>
+        <div class="ctrl-row"><span style="min-width:28px">照明</span><input type="range" id="ls" min="0.3" max="3" step="0.1" value="1.6"></div>
+        <div class="ctrl-row"><span style="min-width:28px">背景</span><input type="range" id="bs" min="0" max="60" step="1" value="20"></div>
+        <div class="view-btns">
+          <button class="vbtn" onclick="sv('front')">Front</button>
+          <button class="vbtn" onclick="sv('back')">Back</button>
+          <button class="vbtn" onclick="sv('top')">Top</button>
+          <button class="vbtn" onclick="sv('side')">Side</button>
+          <button class="vbtn" onclick="sv('reset')">Reset</button>
+        </div>
+      </div>
+    </div>
+    <div class="sb-sec">
+      <div class="sb-hdr">描画ツール</div>
+      <div class="draw-bar">
+        <div class="draw-row">
+          <button class="dbtn on" id="db-move"   onclick="sTool('move')">✋ 移動</button>
+          <button class="dbtn"    id="db-pen"    onclick="sTool('pen')">✏️ ペン</button>
+          <button class="dbtn"    id="db-circle" onclick="sTool('circle')">⭕ 円</button>
+          <button class="dbtn"    id="db-arrow"  onclick="sTool('arrow')">➡️ 矢印</button>
+          <button class="dbtn"    id="db-text"   onclick="sTool('text')">T テキスト</button>
+        </div>
+        <div class="draw-row">
+          <span style="font-size:10px;color:#6a7a8a">色</span>
+          <input type="color" id="dc" value="#ff3333" style="width:26px;height:26px;border:1px solid #2a3448;border-radius:4px;padding:1px;cursor:pointer;background:none">
+          <span style="font-size:10px;color:#6a7a8a">太さ</span>
+          <input type="range" id="ds" min="1" max="12" value="3" style="flex:1;accent-color:#3a8fa3">
+          <span id="ds-lbl" style="font-size:10px;color:#5a6a7a;min-width:16px">3</span>
+        </div>
+        <div class="draw-row">
+          <button class="dbtn" onclick="uDraw()" style="flex:1">↩ 元に戻す</button>
+          <button class="dbtn" onclick="cDraw()" style="flex:1">🗑 消去</button>
+          <button class="dbtn" onclick="doSS()" style="flex:1;font-size:11px"><span style="font-size:16px">📸</span> キャプチャ</button>
+        </div>
+      </div>
+    </div>
+    <div class="footer">Generated by Denta-Pro</div>
+  </div>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+
+// ━━ 全画面対応 ━━
+function _reqFS() {
+  var isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+  var btn = document.getElementById('fs-btn');
+  if (isIOS) { _showIOSFSGuide(); return; }
+  var el = document.documentElement;
+  if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+    if (el.requestFullscreen) el.requestFullscreen();
+    else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
+    if (btn) btn.textContent = '✕ 全画面解除';
+  } else {
+    if (document.exitFullscreen) document.exitFullscreen();
+    else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
+    if (btn) btn.textContent = '⛶ 全画面';
+  }
+}
+function _showIOSFSGuide() {
+  var old = document.getElementById('ios-fs-guide');
+  if (old) { old.remove(); return; }
+  var d = document.createElement('div');
+  d.id = 'ios-fs-guide';
+  d.style.cssText = 'position:fixed;bottom:0;left:0;right:0;z-index:9999;background:#1c2130;border-top:2px solid #3a8fa3;padding:20px 20px 36px;text-align:center';
+  d.innerHTML = '<div style="font-size:28px;margin-bottom:10px">📱</div>'
+    + '<p style="color:white;font-size:14px;font-weight:600;margin-bottom:8px">全画面で表示するには</p>'
+    + '<p style="color:rgba(255,255,255,.65);font-size:12px;line-height:1.8;margin-bottom:16px">'
+    + 'Safari 下部の <span style="color:#5bb3c9;font-weight:600">共有ボタン</span> をタップ<br>'
+    + '→ <span style="color:#5bb3c9;font-weight:600">ホーム画面に追加</span> を選択<br>'
+    + '→ ホーム画面から起動すると全画面表示されます</p>'
+    + '<button onclick="document.getElementById('ios-fs-guide').remove()" '
+    + 'style="background:#3a8fa3;color:white;border:none;border-radius:8px;padding:11px 32px;font-size:13px;font-weight:600;cursor:pointer">閉じる</button>';
+  document.body.appendChild(d);
+}
+
+function h2n(h){ return parseInt(h.replace('#',''), 16); }
+function b64buf(b){
+  var s = atob(b), a = new Uint8Array(s.length);
+  for(var i=0;i<s.length;i++) a[i]=s.charCodeAt(i);
+  return a.buffer;
+}
+function parseBin(buf){
+  var dv=new DataView(buf), n=dv.getUint32(80,true);
+  var p=new Float32Array(n*9), no=new Float32Array(n*9);
+  for(var i=0;i<n;i++){
+    var o=84+i*50, nx=dv.getFloat32(o,true), ny=dv.getFloat32(o+4,true), nz=dv.getFloat32(o+8,true);
+    for(var v=0;v<3;v++){
+      var vo=o+12+v*12, b=i*9+v*3;
+      p[b]=dv.getFloat32(vo,true); p[b+1]=dv.getFloat32(vo+4,true); p[b+2]=dv.getFloat32(vo+8,true);
+      no[b]=nx; no[b+1]=ny; no[b+2]=nz;
+    }
+  }
+  var g=new THREE.BufferGeometry();
+  g.setAttribute('position',new THREE.BufferAttribute(p,3));
+  g.setAttribute('normal',new THREE.BufferAttribute(no,3));
+  return g;
+}
+
+// ━━ 初期化 ━━
+window.addEventListener('DOMContentLoaded', function(){
+  var vw = document.getElementById('vwrap');
+  var cv = document.getElementById('c');
+  var W  = window.innerWidth - 270;
+  var H  = window.innerHeight - 50;
+  if(W <= 0) W = 800;
+  if(H <= 0) H = 600;
+
+  renderer = new THREE.WebGLRenderer({canvas:cv, antialias:true, preserveDrawingBuffer:true});
+  renderer.setSize(W, H);
+  renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+  renderer.shadowMap.enabled = false;
+  renderer.toneMapping = THREE.ACESFilmicToneMapping;
+  renderer.toneMappingExposure = 1.1;
+
+  scene = new THREE.Scene();
+  scene.background = new THREE.Color(0x22262f);
+
+  camera = new THREE.PerspectiveCamera(40, W/H, 0.1, 1000);
+  camera.position.set(0, 1.5, 12);
+
+  scene.add(new THREE.AmbientLight(0xffffff, 0.5));
+  sun = new THREE.DirectionalLight(0xfff8f0, 1.6);
+  sun.position.set(6, 10, 8); sun.castShadow=false; scene.add(sun);
+  var fill = new THREE.DirectionalLight(0xaaddff, 0.4); fill.position.set(-5,3,-5); scene.add(fill);
+  var rim  = new THREE.DirectionalLight(0xffffff, 0.25); rim.position.set(0,-5,-8); scene.add(rim);
+
+  var grid = new THREE.GridHelper(20, 30, 0x3a4050, 0x2e3444);
+  grid.position.y = -3.5; scene.add(grid);
+
+  sceneRoot = new THREE.Group(); scene.add(sceneRoot);
+
+  // STL 로드
+  var totalBox = new THREE.Box3();
+  var meshes = [];
+  LD.forEach(function(ld){
+    var geo = parseBin(b64buf(ld.b64));
+    var mat = new THREE.MeshStandardMaterial({
+      color:      h2n(ld.color.hex),
+      metalness:  ld.color.metal,
+      roughness:  ld.color.rough
+    });
+    var op = (ld.opacity !== undefined ? ld.opacity : 100) / 100;
+    if(op < 1){ mat.transparent=true; mat.opacity=op; }
+    var mesh = new THREE.Mesh(geo, mat);
+    mesh.visible      = ld.visible;
+    mesh.castShadow   = false;
+    mesh.receiveShadow= false;
+    sceneRoot.add(mesh);
+    meshes.push({m:mesh, ld:ld});
+    totalBox.union(new THREE.Box3().setFromObject(mesh));
+  });
+
+  // 전체 센터링 & 스케일
+  if(!totalBox.isEmpty()){
+    var sz=new THREE.Vector3(), ctr=new THREE.Vector3();
+    totalBox.getSize(sz); totalBox.getCenter(ctr);
+    var sc = 8 / Math.max(sz.x, sz.y, sz.z, 0.001);
+    sceneRoot.scale.setScalar(sc);
+    sceneRoot.position.set(-ctr.x*sc, -ctr.y*sc, -ctr.z*sc);
+    grid.position.y = (-ctr.y - sz.y/2) * sc - 0.3;
+  }
+
+  buildLL(meshes);
+
+  // ━━ 렌더 루프 (Quaternion 방식만, 충돌 없음) ━━
+  var _ax = new THREE.Vector3(0,1,0);
+  function animate(){
+    requestAnimationFrame(animate);
+    if(autoRot){
+      var dq = new THREE.Quaternion().setFromAxisAngle(_ax, 0.005);
+      currentQuat.premultiply(dq);
+    }
+    sceneRoot.quaternion.copy(currentQuat);
+    renderer.render(scene, camera);
+  }
+  animate();
+
+  // ━━ 마우스 조작 ━━
+  var isDrag=false, isPan=false, mx=0, my=0;
+  cv.addEventListener('mousedown', function(e){
+    if(xTool !== 'move') return;
+    if(e.button===2) isPan=true; else isDrag=true;
+    mx=e.clientX; my=e.clientY;
+    autoRot=false; document.getElementById('ar').checked=false;
+  });
+  window.addEventListener('mouseup',    function(){ isDrag=false; isPan=false; });
+  window.addEventListener('mousemove',  function(e){
+    if(isDrag){
+      var qY = new THREE.Quaternion().setFromAxisAngle(_up, (e.clientX-mx)*0.006);
+      var qX = new THREE.Quaternion().setFromAxisAngle(_ri, (e.clientY-my)*0.006);
+      currentQuat.premultiply(qY).premultiply(qX);
+      mx=e.clientX; my=e.clientY;
+    } else if(isPan){
+      camera.position.x -= (e.clientX-mx)*0.012;
+      camera.position.y += (e.clientY-my)*0.012;
+      mx=e.clientX; my=e.clientY;
+    }
+  });
+  cv.addEventListener('wheel', function(e){
+    camera.position.z = Math.max(1.5, Math.min(40, camera.position.z + e.deltaY*0.015));
+    e.preventDefault();
+  }, {passive:false});
+  cv.addEventListener('contextmenu', function(e){ e.preventDefault(); });
+
+  // ━━ 터치 조작 (1본지=회전 / 2본지 핀치=줌 / 2본지 드래그=이동) ━━
+  var tp={x:0,y:0}, tpd=0, tpMid={x:0,y:0};
+  cv.addEventListener('touchstart', function(e){
+    if(xTool !== 'move') return;
+    if(e.touches.length===1){
+      tp={x:e.touches[0].clientX, y:e.touches[0].clientY};
+      autoRot=false; document.getElementById('ar').checked=false;
+    } else if(e.touches.length===2){
+      var dx=e.touches[0].clientX-e.touches[1].clientX;
+      var dy=e.touches[0].clientY-e.touches[1].clientY;
+      tpd=Math.sqrt(dx*dx+dy*dy);
+      tpMid={
+        x:(e.touches[0].clientX+e.touches[1].clientX)/2,
+        y:(e.touches[0].clientY+e.touches[1].clientY)/2
+      };
+      autoRot=false; document.getElementById('ar').checked=false;
+    }
+    e.preventDefault();
+  }, {passive:false});
+  cv.addEventListener('touchmove', function(e){
+    if(xTool !== 'move') return;
+    if(e.touches.length===1){
+      var qY = new THREE.Quaternion().setFromAxisAngle(_up, (e.touches[0].clientX-tp.x)*0.009);
+      var qX = new THREE.Quaternion().setFromAxisAngle(_ri, (e.touches[0].clientY-tp.y)*0.009);
+      currentQuat.premultiply(qY).premultiply(qX);
+      tp={x:e.touches[0].clientX, y:e.touches[0].clientY};
+    } else if(e.touches.length===2){
+      var dx=e.touches[0].clientX-e.touches[1].clientX;
+      var dy=e.touches[0].clientY-e.touches[1].clientY;
+      var d=Math.sqrt(dx*dx+dy*dy);
+      var midX=(e.touches[0].clientX+e.touches[1].clientX)/2;
+      var midY=(e.touches[0].clientY+e.touches[1].clientY)/2;
+
+      // 줌 (핀치)
+      camera.position.z = Math.max(1.5, Math.min(40, camera.position.z-(d-tpd)*0.04));
+      tpd=d;
+
+      // 이동 (2손가락 드래그)
+      camera.position.x -= (midX-tpMid.x)*0.015;
+      camera.position.y += (midY-tpMid.y)*0.015;
+      tpMid={x:midX, y:midY};
+    }
+    e.preventDefault();
+  }, {passive:false});
+
+  // ━━ 컨트롤 (조명·배경·자동회전) ━━
+  document.getElementById('ar').addEventListener('change', function(e){ autoRot=e.target.checked; });
+  document.getElementById('ls').addEventListener('input',  function(e){ sun.intensity=parseFloat(e.target.value); });
+  document.getElementById('bs').addEventListener('input',  function(e){
+    var v=parseInt(e.target.value);
+    scene.background=new THREE.Color('rgb('+(v+10)+','+(v+12)+','+(v+18)+')');
+  });
+
+  // ━━ 리사이즈 ━━
+  window.addEventListener('resize', function(){
+    var w = window.innerWidth - 270;
+    var h = window.innerHeight - 50;
+    if(w<=0) w=800; if(h<=0) h=600;
+    renderer.setSize(w, h);
+    camera.aspect = w/h; camera.updateProjectionMatrix();
+    rsxDC();
+  });
+  // 초기 렌더 후 크기 재보정
+  setTimeout(function(){
+    var w = vw.clientWidth || window.innerWidth - 270;
+    var h = vw.clientHeight || window.innerHeight - 50;
+    if(w>0 && h>0){
+      renderer.setSize(w, h);
+      camera.aspect = w/h; camera.updateProjectionMatrix();
+    }
+  }, 100);
+
+  // ━━ 펜슬 툴 초기화 ━━
+  initXT();
+});
+
+// ━━ 뷰 전환 ━━
+function sv(v){
+  autoRot=false; document.getElementById('ar').checked=false;
+  if(v==='front')  currentQuat.set(0,0,0,1);
+  else if(v==='back')  currentQuat.setFromAxisAngle(new THREE.Vector3(0,1,0), Math.PI);
+  else if(v==='top')   currentQuat.setFromAxisAngle(new THREE.Vector3(1,0,0), -Math.PI/2);
+  else if(v==='side')  currentQuat.setFromAxisAngle(new THREE.Vector3(0,1,0), Math.PI/2);
+  else if(v==='reset'){ currentQuat.set(0,0,0,1); camera.position.set(0,1.5,12); }
+}
+
+// ━━ 레이어 리스트 ━━
+function buildLL(meshes){
+  var list=document.getElementById('llout'); list.innerHTML='';
+  LD.forEach(function(ld, i){
+    var item = document.createElement('div'); item.className='layer-item';
+    var r1   = document.createElement('div'); r1.className='layer-row1';
+    r1.innerHTML = '<div class="l-dot" style="background:'+ld.color.hex+'"></div>'
+      + '<div class="l-name" title="'+ld.name+'">'+ld.name+'</div>'
+      + '<div class="l-eye'+(ld.visible?'':' off')+'">'+(ld.visible?'👁':'🚫')+'</div>';
+    r1.addEventListener('click', function(){
+      ld.visible = !ld.visible;
+      meshes[i].m.visible = ld.visible;
+      buildLL(meshes);
+    });
+    var r2 = document.createElement('div'); r2.className='layer-row2';
+    var op = ld.opacity !== undefined ? ld.opacity : 100;
+    r2.innerHTML = '<span style="font-size:10px;color:#5a6a7a;min-width:32px">透明度</span>'
+      + '<input type="range" min="0" max="100" step="1" value="'+op
+      + '" style="flex:1;accent-color:#3a8fa3" data-i="'+i+'">'
+      + '<span style="font-size:10px;color:#5a6a7a;min-width:30px;text-align:right">'+op+'%</span>';
+    r2.querySelector('input').addEventListener('input', function(e){
+      var v   = parseInt(e.target.value);
+      var idx = parseInt(e.target.dataset.i);
+      LD[idx].opacity = v;
+      var mat = meshes[idx].m.material;
+      mat.transparent = v<100; mat.opacity=v/100; mat.needsUpdate=true;
+      e.target.nextElementSibling.textContent = v+'%';
+    });
+    item.appendChild(r1); item.appendChild(r2); list.appendChild(item);
+  });
+}
+
+// ━━ 펜슬 툴 ━━
+var xTool='move', xActs=[], xDrw=false, xSt={x:0,y:0}, xSnap=null, xPen=[];
+var xDC=null, xCtx=null;
+
+function initXT(){
+  xDC  = document.getElementById('xdc');
+  xCtx = xDC.getContext('2d');
+  rsxDC();
+  document.getElementById('ds').addEventListener('input', function(e){
+    document.getElementById('ds-lbl').textContent = e.target.value;
+  });
+  xDC.addEventListener('mousedown', function(e){
+    if(xTool==='move') return;
+    e.stopPropagation();
+    if(xTool==='text'){
+      var p=gp(e); var t=prompt('テキストを入力:'); if(!t) return;
+      var sz=parseInt(document.getElementById('ds').value);
+      xCtx.font      = Math.max(14,sz*4)+'px sans-serif';
+      xCtx.fillStyle = document.getElementById('dc').value;
+      xCtx.fillText(t, p.x, p.y);
+      xActs.push(xCtx.getImageData(0,0,xDC.width,xDC.height)); return;
+    }
+    xDrw=true; xSt=gp(e);
+    xSnap = xCtx.getImageData(0,0,xDC.width,xDC.height);
+    if(xTool==='pen') xPen=[xSt];
+  });
+  xDC.addEventListener('mousemove', function(e){
+    if(!xDrw) return;
+    var p=gp(e), c=document.getElementById('dc').value, sz=parseInt(document.getElementById('ds').value);
+    xCtx.strokeStyle=c; xCtx.fillStyle=c; xCtx.lineWidth=sz; xCtx.lineCap='round'; xCtx.lineJoin='round';
+    if(xTool==='pen'){
+      if(xPen.length){ var pv=xPen[xPen.length-1]; xCtx.beginPath(); xCtx.moveTo(pv.x,pv.y); xCtx.lineTo(p.x,p.y); xCtx.stroke(); }
+      xPen.push(p);
+    } else if(xSnap){
+      xCtx.putImageData(xSnap,0,0);
+      if(xTool==='circle'){ var rx=(p.x-xSt.x)/2,ry=(p.y-xSt.y)/2; xCtx.beginPath(); xCtx.ellipse(xSt.x+rx,xSt.y+ry,Math.abs(rx),Math.abs(ry),0,0,Math.PI*2); xCtx.stroke(); }
+      else if(xTool==='arrow') xArr(xSt.x,xSt.y,p.x,p.y,c,sz);
+    }
+  });
+  xDC.addEventListener('mouseup', function(e){
+    if(!xDrw) return; xDrw=false;
+    var p=gp(e), c=document.getElementById('dc').value, sz=parseInt(document.getElementById('ds').value);
+    if((xTool==='circle'||xTool==='arrow')&&xSnap){
+      xCtx.putImageData(xSnap,0,0); xCtx.strokeStyle=c; xCtx.fillStyle=c; xCtx.lineWidth=sz; xCtx.lineCap='round';
+      if(xTool==='circle'){ var rx=(p.x-xSt.x)/2,ry=(p.y-xSt.y)/2; xCtx.beginPath(); xCtx.ellipse(xSt.x+rx,xSt.y+ry,Math.abs(rx),Math.abs(ry),0,0,Math.PI*2); xCtx.stroke(); }
+      else xArr(xSt.x,xSt.y,p.x,p.y,c,sz);
+    }
+    xActs.push(xCtx.getImageData(0,0,xDC.width,xDC.height));
+    xSnap=null; xPen=[];
+  });
+  xDC.addEventListener('touchstart', function(e){ e.preventDefault(); xDC.dispatchEvent(new MouseEvent('mousedown',{clientX:e.touches[0].clientX,clientY:e.touches[0].clientY})); },{passive:false});
+  xDC.addEventListener('touchmove',  function(e){ e.preventDefault(); xDC.dispatchEvent(new MouseEvent('mousemove',{clientX:e.touches[0].clientX,clientY:e.touches[0].clientY})); },{passive:false});
+  xDC.addEventListener('touchend',   function(e){ e.preventDefault(); xDC.dispatchEvent(new MouseEvent('mouseup',  {clientX:0,clientY:0})); },{passive:false});
+}
+function rsxDC(){ if(!xDC) return; var r=document.getElementById('vwrap').getBoundingClientRect(); xDC.width=r.width; xDC.height=r.height; if(xActs.length) xCtx.putImageData(xActs[xActs.length-1],0,0); }
+function gp(e){ var r=xDC.getBoundingClientRect(),s=e.touches?e.touches[0]:e; return{x:s.clientX-r.left,y:s.clientY-r.top}; }
+function xArr(x1,y1,x2,y2,c,sz){ var a=Math.atan2(y2-y1,x2-x1),hl=Math.max(14,sz*4); xCtx.strokeStyle=c;xCtx.fillStyle=c;xCtx.lineWidth=sz;xCtx.lineCap='round'; xCtx.beginPath();xCtx.moveTo(x1,y1);xCtx.lineTo(x2,y2);xCtx.stroke(); xCtx.beginPath();xCtx.moveTo(x2,y2);xCtx.lineTo(x2-hl*Math.cos(a-Math.PI/6),y2-hl*Math.sin(a-Math.PI/6));xCtx.lineTo(x2-hl*Math.cos(a+Math.PI/6),y2-hl*Math.sin(a+Math.PI/6));xCtx.closePath();xCtx.fill(); }
+function sTool(t){ xTool=t; ['move','pen','circle','arrow','text'].forEach(function(n){ var b=document.getElementById('db-'+n); if(!b) return; b.className='dbtn'+(n===t?' on':''); }); xDC.style.pointerEvents=t==='move'?'none':'all'; xDC.style.cursor=t==='move'?'default':'crosshair'; }
+function uDraw(){ xActs.pop(); xCtx.clearRect(0,0,xDC.width,xDC.height); if(xActs.length) xCtx.putImageData(xActs[xActs.length-1],0,0); }
+function cDraw(){ if(!confirm('消去しますか？')) return; xActs=[]; xCtx.clearRect(0,0,xDC.width,xDC.height); }
+function doSS(){
+  var cw=document.getElementById('c');
+  renderer.render(scene,camera);
+  var m=document.createElement('canvas');m.width=cw.width;m.height=cw.height;
+  var mc=m.getContext('2d');mc.drawImage(cw,0,0);
+  if(xDC)mc.drawImage(xDC,0,0,xDC.width,xDC.height,0,0,cw.width,cw.height);
+  var dataURL=m.toDataURL('image/png');
+  var isIOS=/iPhone|iPad|iPod/i.test(navigator.userAgent);
+  if(isIOS){
+    var win=window.open('','_blank');
+    win.document.write('<html><head><meta name="viewport" content="width=device-width,initial-scale=1"><title>キャプチャ</title><style>body{margin:0;background:#000;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh}img{max-width:100%;max-height:90vh}p{color:white;font-size:14px;margin-top:12px;font-family:sans-serif;opacity:.7}</style></head><body><img src="'+dataURL+'"><p>画像を長押しして保存してください</p></body></html>');
+    win.document.close();
+  } else {
+    var a=document.createElement('a');
+    a.href=dataURL;
+    a.download='DentaPRO_screenshot_'+new Date().toISOString().slice(0,10)+'.png';
+    a.click();
+  }
+}
+</script>
+</body>
+</html>
